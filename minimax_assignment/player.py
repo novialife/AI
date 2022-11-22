@@ -158,6 +158,9 @@ class PlayerControllerMinimax(PlayerController):
             d_max = dx_0 + dy_0 + 1
             d_min = dx_1 + dy_1 + 1
 
-            h += fish_scores[fish] * (1/d_max - 1/ d_min)
+            if d_max == d_min:
+                h += fish_scores[fish] + 1/d_max
+            else:
+                h += fish_scores[fish] * (1/d_max - 1/ d_min)
         
         return h + score_diff
