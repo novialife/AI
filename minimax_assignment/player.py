@@ -46,6 +46,7 @@ class PlayerControllerMinimax(PlayerController):
             self.root_node = Node(message=msg, player=0)
             self.Zobrist_table = self.init_table()
             self.Zobrist_table_hash = {}
+            self.MAX_DEPTH = 7
             # Possible next moves: "stay", "left", "right", "up", "down"
             best_move = self.search_best_next_move(initial_tree_node=self.root_node)
 
@@ -73,12 +74,13 @@ class PlayerControllerMinimax(PlayerController):
         beta = np.inf
         highScore = -np.inf
         best_move = 0
-        for node in nodes:
-            player = node.state.get_player()
-            score = self.minimax(node, 5, alpha, beta, player, initial_time)
-            if (score > highScore):
-                highScore = score
-                best_move = node.move
+        for depth in range(2, self.MAX_DEPTH+1):
+            for node in nodes:
+                player = node.state.get_player()
+                score = self.minimax(node, depth, alpha, beta, player, initial_time)
+                if (score > highScore):
+                    highScore = score
+                    best_move = node.move
         #print("Best move: ", ACTION_TO_STR[best_move])
         return ACTION_TO_STR[best_move]
 
@@ -107,7 +109,6 @@ class PlayerControllerMinimax(PlayerController):
         return hash_value
 
     def minimax(self, node, depth, alpha, beta, player, initial_time):
-
         zobrist_hash = self.compute_zobrist_hash(node)
         if zobrist_hash in self.Zobrist_table_hash:
             return self.Zobrist_table_hash[zobrist_hash]
@@ -120,7 +121,7 @@ class PlayerControllerMinimax(PlayerController):
 
         nodes = node.compute_and_get_children()
         nodes.sort(key=self.compute_heuristic, reverse=True) if player == 0 else nodes.sort(key=self.compute_heuristic, reverse=False)
-
+        
         if player == 0:
             value = -np.inf
             for child in nodes:
