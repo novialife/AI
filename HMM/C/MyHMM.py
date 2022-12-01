@@ -1,5 +1,6 @@
 import sys
 import math
+import numpy as np
 
 def make_matrix(matrix, shape):
     m = []
@@ -131,6 +132,8 @@ class HMM:
     def baum_welch(self, max_iter):
         log_p = -math.inf
         for _ in range(max_iter):
+            if _ % 10 == 0:
+                print(f"Iteration {_}")
             alpha, p = self.forward()
             p = p[::-1]
             obs = self.O[::-1]
@@ -142,9 +145,11 @@ class HMM:
 
             if self.prob_log(p) < log_p:
                 log_p = self.prob_log(p)
-                break
+                print(f"Converged at iteration {_} with log probability {log_p}")
+                return True
             log_p = self.prob_log(p)
-        
+        print(f"Did not converge after {max_iter} iterations with log probability {log_p}")
+        return False
     def printer(self):
         # Convert self.A to a string
         A = ""
@@ -205,7 +210,6 @@ def main():
     model = HMM()
 
     # Read the input
-    global A, B, pi, O
     input = sys.stdin.read().splitlines()
     transition_matrix = input[0].split()
     transition_matrix = [float(i) for i in transition_matrix]
@@ -229,8 +233,6 @@ def main():
     model.pi = initial_matrix
     print(model.pi)
     quit()
-
-
     observation_sequence = input[3].split()
     observation_sequence = [int(i) for i in observation_sequence]
     observation_sequence = observation_sequence[1:]
@@ -246,5 +248,58 @@ def main():
     model.printer()
 
 
+def q7():
+    model = HMM()
+
+    model.A = [[0.54, 0.26, 0.20], [0.19, 0.53, 0.28], [0.22, 0.18, 0.6]]
+    model.B = [[0.5, 0.2, 0.11, 0.19], [0.22, 0.28, 0.23, 0.27], [0.19, 0.21, 0.15, 0.45]]
+    model.pi = [[0.3, 0.2, 0.5]]
+
+    input = sys.stdin.read().splitlines()
+    observation_sequence = input[0].split()
+    observation_sequence = [int(i) for i in observation_sequence]
+    observation_sequence = observation_sequence[1:]
+    model.O = observation_sequence
+
+    model.M = len(set(model.O))
+    model.N = len(model.A)
+    model.T = len(model.O)
+    if model.baum_welch(10000):
+        model.printer()
+
+
+def q8():
+    model = HMM()
+    model.A = np.random.dirichlet(np.ones((3)), size=(3))
+    model.B = np.random.dirichlet(np.ones((4)), size=(3))
+    model.pi = np.random.dirichlet(np.ones((3)), size=1)
+
+    input = sys.stdin.read().splitlines()
+    observation_sequence = input[0].split()
+    observation_sequence = [int(i) for i in observation_sequence]
+    observation_sequence = observation_sequence[1:]
+    model.O = observation_sequence
+
+    model.M = len(set(model.O))
+    model.N = len(model.A)
+    model.T = len(model.O)
+
+    print(np.shape(model.A))
+    print(np.shape(model.B))
+    print(np.shape(model.pi))
+    print(np.shape(model.O))
+
+    print(model.M)
+    print(model.N)
+    print(model.T)
+
+    if model.baum_welch(10000):
+        model.printer()
+
+
+
+
+
+
 if __name__ == "__main__":
-    main()
+    q8()
