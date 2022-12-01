@@ -3,8 +3,10 @@
 from player_controller_hmm import PlayerControllerHMMAbstract
 from constants import *
 import random
-from HMM import *
+import numpy as np
+from samHMM import *
 import sys
+
 
 class PlayerControllerHMM(PlayerControllerHMMAbstract):
     def init_parameters(self):
@@ -38,7 +40,7 @@ class PlayerControllerHMM(PlayerControllerHMMAbstract):
             except:
                 self.opps[fish] = [observations[fish]]
         
-        if step > 100:
+        if step > 110:
             for fish_species in range(N_SPECIES):
                 self.models[fish_species].T = len(self.opps[self.curr_fish_id])
                 self.models[fish_species].O = self.opps[self.curr_fish_id]
