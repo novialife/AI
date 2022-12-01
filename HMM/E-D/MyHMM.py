@@ -1,8 +1,6 @@
 import sys
 import math
 
-sys.setrecursionlimit(100000)
-
 def make_matrix(matrix, shape):
     m = []
     for i in range(shape[0]):
@@ -229,6 +227,9 @@ def main():
     initial_matrix = initial_matrix[2:]
     initial_matrix = make_matrix(initial_matrix, i_shape)
     model.pi = initial_matrix
+    print(model.pi)
+    quit()
+
 
     observation_sequence = input[3].split()
     observation_sequence = [int(i) for i in observation_sequence]

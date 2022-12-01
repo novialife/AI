@@ -46,7 +46,7 @@ class PlayerControllerMinimax(PlayerController):
             self.root_node = Node(message=msg, player=0)
             self.Zobrist_table = self.init_table()
             self.Zobrist_table_hash = {}
-            self.MAX_DEPTH = 7
+            self.MAX_DEPTH = 70
             # Possible next moves: "stay", "left", "right", "up", "down"
             best_move = self.search_best_next_move(initial_tree_node=self.root_node)
 
