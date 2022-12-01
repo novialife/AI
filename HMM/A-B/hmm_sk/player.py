@@ -3,15 +3,23 @@
 from player_controller_hmm import PlayerControllerHMMAbstract
 from constants import *
 import random
-
+from HMM import *
+import sys
 
 class PlayerControllerHMM(PlayerControllerHMMAbstract):
     def init_parameters(self):
         """
         In this function you should initialize the parameters you will need,
         such as the initialization of models, or fishes, among others.
-        """
-        pass
+        """        
+
+        self.models = {}
+        for fish in range(N_SPECIES):
+            self.models[fish] = HMM()
+            self.models[fish].init_parameters(N_SPECIES, N_EMISSIONS)
+        
+        self.opps = {}
+        self.curr_fish_id = 0
 
     def guess(self, step, observations):
         """
@@ -23,10 +31,24 @@ class PlayerControllerHMM(PlayerControllerHMMAbstract):
         :return: None or a tuple (fish_id, fish_type)
         """
 
-        # This code would make a random guess on each step:
-        # return (step % N_FISH, random.randint(0, N_SPECIES - 1))
-
-        return None
+        guesses = []
+        for fish in range(N_FISH):
+            try:
+                self.opps[fish].append(observations[fish])
+            except:
+                self.opps[fish] = [observations[fish]]
+        
+        if step > 100:
+            for fish_species in range(N_SPECIES):
+                self.models[fish_species].T = len(self.opps[self.curr_fish_id])
+                self.models[fish_species].O = self.opps[self.curr_fish_id]
+                alpha = self.models[fish_species].forward()[0]
+                guesses.append(sum(alpha[-1]))
+            
+            guess = np.argmax(guesses)
+            return(self.curr_fish_id, guess)
+        else:
+            return None
 
     def reveal(self, correct, fish_id, true_type):
         """
@@ -38,4 +60,6 @@ class PlayerControllerHMM(PlayerControllerHMMAbstract):
         :param true_type: the correct type of the fish
         :return:
         """
-        pass
+
+        self.models[true_type].baum_welch(100)        
+        self.curr_fish_id += 1
