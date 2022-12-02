@@ -4,7 +4,7 @@ from player_controller_hmm import PlayerControllerHMMAbstract
 from constants import *
 import random
 import numpy as np
-from samHMM import *
+from HMM import *
 import sys
 
 
@@ -40,14 +40,15 @@ class PlayerControllerHMM(PlayerControllerHMMAbstract):
             except:
                 self.opps[fish] = [observations[fish]]
         
-        if step > 110:
+        if step > 100:
             for fish_species in range(N_SPECIES):
                 self.models[fish_species].T = len(self.opps[self.curr_fish_id])
                 self.models[fish_species].O = self.opps[self.curr_fish_id]
-                alpha = self.models[fish_species].forward()[0]
-                guesses.append(sum(alpha[-1]))
+                alpha = self.models[fish_species].efficient_forward()[0]
+                guesses.append(np.sum(alpha[-1]))
             
             guess = np.argmax(guesses)
+            print(guess)
             return(self.curr_fish_id, guess)
         else:
             return None
@@ -63,5 +64,6 @@ class PlayerControllerHMM(PlayerControllerHMMAbstract):
         :return:
         """
 
-        self.models[true_type].baum_welch(100)        
+        self.models[true_type].baum_welch(3)    
+        #print(self.models[true_type].A)    
         self.curr_fish_id += 1

@@ -44,6 +44,7 @@ class HMM:
         for i in range(self.N-1):
             self.alpha[0][i] = self.pi[i] * self.B[i][self.O[0]]
             c0 = c0 + self.alpha[0][i]
+            sum(self.alpha[0])
             i = i + 1
 
         #scale the alpha[0][i]
