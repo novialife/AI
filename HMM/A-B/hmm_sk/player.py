@@ -20,38 +20,38 @@ class PlayerControllerHMM(PlayerControllerHMMAbstract):
             self.models[fish] = HMM()
             self.models[fish].init_parameters(N_SPECIES, N_EMISSIONS)
         
-        self.opps = {}
-        self.seen = {}
+        self.fishes = [(i, []) for i in range(N_FISH)]
         self.curr_fish_id = 0
 
     def guess(self, step, observations):
-        """
-        This method gets called on every iteration, providing observations.
-        Here the player should process and store this information,
-        and optionally make a guess by returning a tuple containing the fish index and the guess.
-        :param step: iteration number
-        :param observations: a list of N_FISH observations, encoded as integers
-        :return: None or a tuple (fish_id, fish_type)
-        """
+            """
+            This method gets called on every iteration, providing observations.
+            Here the player should process and store this information,
+            and optionally make a guess by returning a tuple containing the fish index and the guess.
+            :param step: iteration number
+            :param observations: a list of N_FISH observations, encoded as integers
+            :return: None or a tuple (fish_id, fish_type)
+            """
 
-        guesses = []
-        for fish in range(N_FISH):
-            try:
-                self.opps[fish].append(observations[fish])
-            except:
-                self.opps[fish] = [observations[fish]]
-        
-        if step > 10:
-            for fish_species in range(N_SPECIES):
-                self.models[fish_species].T = len(self.opps[self.curr_fish_id])
-                self.models[fish_species].O = self.opps[self.curr_fish_id]
-                alpha = self.models[fish_species].efficient_forward()[0]
-                guesses.append(np.sum(alpha[-1]))
-            
-            guess = np.argmax(guesses)
-            return(self.curr_fish_id, guess)
-        else:
-            return None
+            for i in range(len(self.fishes)):
+                self.fishes[i][1].append(observations[i])
+
+            if step < 110:      # 110 = 180 timesteps - 70 guesses
+                return None
+            else:
+                fish_id, obs = self.fishes.pop()
+                fish_type = 0
+                max = 0
+                for model, j in zip(list(self.models.values()), range(N_SPECIES)):
+                    model.T = len(obs)
+                    model.O = obs
+                    alpha = model.forward()
+                    m = sum(alpha[-1])
+                    if m > max:
+                        max = m
+                        fish_type = j
+                self.obs = obs
+                return fish_id, fish_type
 
     def reveal(self, correct, fish_id, true_type):
         """
@@ -63,8 +63,7 @@ class PlayerControllerHMM(PlayerControllerHMMAbstract):
         :param true_type: the correct type of the fish
         :return:
         """
-        if true_type not in self.seen:
-            self.seen[true_type] = 1
-            self.models[true_type].baum_welch(200) 
 
-        self.curr_fish_id += 1
+        if not correct:
+            self.models[true_type].baum_welch(50)
+
