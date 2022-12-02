@@ -22,7 +22,7 @@ class HMM:
         alpha[:, 0] = alpha[:, 0] / C0
         C_list = [C0]
         for t in range(1, self.T):            
-            alpha[:, t] = np.logaddexp.reduce(np.log(alpha[:, t-1]) + np.log(self.A), axis=1) + np.log(self.B[:, self.O[t]])
+            alpha[:, t] = np.logaddexp.reduce((alpha[:, t-1]) + self.A, axis=1) + self.B[:, self.O[t]]
             C = np.sum(alpha[:, t])
             alpha[:, t] = alpha[:, t] / C
             C_list.append(1/C)
@@ -32,7 +32,7 @@ class HMM:
         B = np.zeros((self.N, self.T))
         B[:, -1] = 1
         for t in range(self.T-2, -1, -1):
-            B[:, t] = np.logaddexp.reduce(np.log(B[:, t+1]) + np.log(self.B[:, O[t+1]]) + np.log(self.A), axis=1)
+            B[:, t] = np.logaddexp.reduce(B[:, t+1] + self.B[:, O[t+1]] + self.A, axis=1)
             B[:, t] = B[:, t] * C_list[t]
         return B
     

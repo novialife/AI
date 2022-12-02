@@ -21,6 +21,7 @@ class PlayerControllerHMM(PlayerControllerHMMAbstract):
             self.models[fish].init_parameters(N_SPECIES, N_EMISSIONS)
         
         self.opps = {}
+        self.caught = {}
         self.curr_fish_id = 0
 
     def guess(self, step, observations):
@@ -48,7 +49,6 @@ class PlayerControllerHMM(PlayerControllerHMMAbstract):
                 guesses.append(np.sum(alpha[-1]))
             
             guess = np.argmax(guesses)
-            print(guess)
             return(self.curr_fish_id, guess)
         else:
             return None
@@ -63,7 +63,8 @@ class PlayerControllerHMM(PlayerControllerHMMAbstract):
         :param true_type: the correct type of the fish
         :return:
         """
+        if true_type not in self.caught:
+            self.caught[true_type] = 1
+            self.models[true_type].baum_welch(200) 
 
-        self.models[true_type].baum_welch(3)    
-        #print(self.models[true_type].A)    
         self.curr_fish_id += 1
