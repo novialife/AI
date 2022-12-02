@@ -58,7 +58,7 @@ class HMM:
         for i in range(self.N):
             for j in range(self.N):
                 self.A[i][j] = np.sum(gamma_ij[i*self.N+j::self.N]) / np.sum(gamma[i::self.N])
-
+        print(self.A)
         # Reestimate B
         for i in range(self.N):
             for j in range(len(set(self.O))):

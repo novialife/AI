@@ -21,7 +21,7 @@ class PlayerControllerHMM(PlayerControllerHMMAbstract):
             self.models[fish].init_parameters(N_SPECIES, N_EMISSIONS)
         
         self.opps = {}
-        self.caught = {}
+        self.seen = {}
         self.curr_fish_id = 0
 
     def guess(self, step, observations):
@@ -41,7 +41,7 @@ class PlayerControllerHMM(PlayerControllerHMMAbstract):
             except:
                 self.opps[fish] = [observations[fish]]
         
-        if step > 100:
+        if step > 10:
             for fish_species in range(N_SPECIES):
                 self.models[fish_species].T = len(self.opps[self.curr_fish_id])
                 self.models[fish_species].O = self.opps[self.curr_fish_id]
@@ -63,8 +63,8 @@ class PlayerControllerHMM(PlayerControllerHMMAbstract):
         :param true_type: the correct type of the fish
         :return:
         """
-        if true_type not in self.caught:
-            self.caught[true_type] = 1
+        if true_type not in self.seen:
+            self.seen[true_type] = 1
             self.models[true_type].baum_welch(200) 
 
         self.curr_fish_id += 1
