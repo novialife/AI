@@ -15,12 +15,15 @@ def make_matrix(matrix, shape):
 
 # Matrix multiplication for nxm and mxp matrices
 def multiply_matrices(A, B):
-    return [[a * b for a, b in zip(A[0], B)]]
+
+    return [[sum(a * b for a, b in zip(a_row, b_col)) for b_col in zip(*B)] for a_row in A]
 
 def dot_product(A, B):
-    return sum([A[i]*B[i] for i in range(len(A))])
+
+    return [[a * b for a, b in zip(A[0], B)]]
 
 def transpose(A):
+
     return list(map(list, zip(*A)))
 
 class HMM:
@@ -35,15 +38,13 @@ class HMM:
     def forward(self):
         alpha = []
         p = []
-
         for t in range(self.T):
             p_t = 0
             alpha_t = []
-            pi_t = self.pi
             for n in range(self.N):
                 if t == 0:
-                    _ = pi_t[n] * self.B[n][self.O[t]]
-                    alpha_t.append(self.B[n][self.O[t]] * pi_t[n])
+                    _ = self.pi[0][n] * self.B[n][self.O[t]]
+                    alpha_t.append(_)
                     p_t += _
                 else:
                     alpha_t_t = 0
@@ -55,7 +56,10 @@ class HMM:
             for n in range(self.N):
                 alpha_t[n] = alpha_t[n] * (1/p_t)     
 
-            p.append(1/p_t)
+            if p_t == 0:
+                p.append(np.inf)
+            else:
+                p.append(1/p_t)
             alpha.append(alpha_t)
 
         return alpha, p
@@ -110,19 +114,25 @@ class HMM:
             for j in range(self.N):
                 numer = sum([gamma_ij[t][i][j] for t in range(self.T-1)])
                 denom = sum([gamma[t][i] for t in range(self.T-1)])
-                self.A[i][j] = numer / denom
+                if denom == 0:
+                    self.A[i][j] = np.inf
+                else:
+                    self.A[i][j] = numer / denom
 
         # Reestimate B
         for i in range(self.N):
             for j in range(self.M):
                 numer = sum([gamma[t][i] for t in range(self.T) if O[t] == j])
                 denom = sum([gamma[t][i] for t in range(self.T)])
-                self.B[i][j] = numer / denom
+                if denom == 0:
+                    self.B[i][j] = np.inf
+                else:
+                    self.B[i][j] = numer / denom
 
         # Reestimate pi
         for i in range(self.N):
             self.pi[i] = gamma[0][i]
-        
+        self.pi = [self.pi]
     
     def prob_log(self, p):
         log_p = 0
@@ -148,10 +158,20 @@ class HMM:
                 break
             log_p = self.prob_log(p)
         
+    def guess(self, fish):
+        obs = transpose(self.B)
+        alpha = dot_product(self.pi, obs[fish[0]])
+
+        for e in fish[1:]:
+            alpha = multiply_matrices(alpha, self.A)
+            alpha = dot_product(alpha, obs[e])
+
+        return sum(alpha[0])
+
 
     def init_parameters(self, N, M):
         self.A = np.random.dirichlet(np.ones((N)), size=(N))
         self.B = np.random.dirichlet(np.ones((M)), size=(N))
-        self.pi = [1/N for _ in range(N)]
+        self.pi = [[1/N for _ in range(N)]]
         self.N = len(self.A)
         self.M = M

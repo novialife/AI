@@ -18,7 +18,7 @@ class PlayerControllerHMM(PlayerControllerHMMAbstract):
         self.models = {}
         for fish in range(N_SPECIES):
             self.models[fish] = HMM()
-            self.models[fish].init_parameters(N_SPECIES, N_EMISSIONS)
+            self.models[fish].init_parameters(1, N_EMISSIONS)
         
         self.fishes = [(i, []) for i in range(N_FISH)]
         self.curr_fish_id = 0
@@ -45,8 +45,7 @@ class PlayerControllerHMM(PlayerControllerHMMAbstract):
                 for model, j in zip(list(self.models.values()), range(N_SPECIES)):
                     model.T = len(obs)
                     model.O = obs
-                    alpha = model.forward()
-                    m = sum(alpha[-1])
+                    m = model.guess(obs)
                     if m > max:
                         max = m
                         fish_type = j
