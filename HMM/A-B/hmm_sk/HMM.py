@@ -7,6 +7,8 @@ from constants import *
 import sys
 import math
 
+epsilon = sys.float_info.epsilon
+
 def make_matrix(matrix, shape):
     m = []
     for i in range(shape[0]):
@@ -34,10 +36,14 @@ class HMM:
         self.O = None
         self.N = None
         self.T = None        
+    
+    def __str__(self) -> str:
+        return f"A: {self.A} \nB: {self.B} \npi: {self.pi}, \nO: {self.O}, \nN: {self.N}, \nT: {self.T}, \nM: {self.M}, \n"
 
     def forward(self):
         alpha = []
-        p = []
+        p = []        
+
         for t in range(self.T):
             p_t = 0
             alpha_t = []
@@ -47,19 +53,12 @@ class HMM:
                     alpha_t.append(_)
                     p_t += _
                 else:
-                    alpha_t_t = 0
-                    for _ in range(self.N):
-                        alpha_t_t += alpha[t-1][_] * self.A[_][n] * self.B[n][self.O[t]]
+                    alpha_t_t = sum([alpha[t-1][_] * self.A[_][n] * self.B[n][self.O[t]] for _ in range(self.N)])
                     alpha_t.append(alpha_t_t)
                     p_t += alpha_t_t
 
-            for n in range(self.N):
-                alpha_t[n] = alpha_t[n] * (1/p_t)     
-
-            if p_t == 0:
-                p.append(np.inf)
-            else:
-                p.append(1/p_t)
+            alpha_t = [alpha_t[n] * (1/p_t) for n in range(self.N)]
+            p.append(1/(p_t + epsilon))
             alpha.append(alpha_t)
 
         return alpha, p
@@ -72,9 +71,7 @@ class HMM:
                 if t == 0:
                     beta_t.append(p[t])
                 else:
-                    beta_t_t = 0
-                    for _ in range(self.N):
-                        beta_t_t += beta[t-1][_] * self.A[n][_] * self.B[_][O[t-1]]
+                    beta_t_t = sum([beta[t-1][_] * self.A[n][_] * self.B[_][O[t-1]] for _ in range(self.N)])
                     beta_t.append(beta_t_t)
             if t == 0:
                 beta.append(beta_t)
@@ -91,21 +88,15 @@ class HMM:
             gamma_t = []
             gamma_ij_t = []
             for n in range(self.N):
-                gamma_t_n = 0
-                gamma_ij_t_n = []
-                for _ in range(self.N):
-                    gamma_ij_t_n_ = alpha[t][n] * self.A[n][_] * self.B[_][O[t+1]] * beta[t+1][_]
-                    gamma_ij_t_n.append(gamma_ij_t_n_)
-                    gamma_t_n += gamma_ij_t_n_
+                gamma_ij_t_n = [alpha[t][n] * self.A[n][_] * self.B[_][O[t+1]] * beta[t+1][_] for _ in range(self.N)]
+                gamma_t_n = sum(gamma_ij_t_n)
                 gamma_ij_t.append(gamma_ij_t_n)
                 gamma_t.append(gamma_t_n)
             gamma.append(gamma_t)
             gamma_ij.append(gamma_ij_t)
-        gamma_t = []
+        
         alpha_t = alpha[t+1]
-        for n in range(self.N):
-            gamma_t.append(alpha_t[n])
-        gamma.append(gamma_t)
+        gamma.append([alpha_t[n] for n in range(self.N)])
         return gamma, gamma_ij
 
     def reestimate(self, gamma, gamma_ij, O):
@@ -114,25 +105,17 @@ class HMM:
             for j in range(self.N):
                 numer = sum([gamma_ij[t][i][j] for t in range(self.T-1)])
                 denom = sum([gamma[t][i] for t in range(self.T-1)])
-                if denom == 0:
-                    self.A[i][j] = np.inf
-                else:
-                    self.A[i][j] = numer / denom
+                self.A[i][j] = numer / (denom + epsilon)
 
         # Reestimate B
         for i in range(self.N):
             for j in range(self.M):
                 numer = sum([gamma[t][i] for t in range(self.T) if O[t] == j])
                 denom = sum([gamma[t][i] for t in range(self.T)])
-                if denom == 0:
-                    self.B[i][j] = np.inf
-                else:
-                    self.B[i][j] = numer / denom
+                self.B[i][j] = numer / (denom + epsilon)
 
         # Reestimate pi
-        for i in range(self.N):
-            self.pi[i] = gamma[0][i]
-        self.pi = [self.pi]
+        self.pi = [[gamma[0][i] for i in range(self.N)]]
     
     def prob_log(self, p):
         log_p = 0

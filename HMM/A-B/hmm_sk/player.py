@@ -21,7 +21,6 @@ class PlayerControllerHMM(PlayerControllerHMMAbstract):
             self.models[fish].init_parameters(1, N_EMISSIONS)
         
         self.fishes = [(i, []) for i in range(N_FISH)]
-        self.curr_fish_id = 0
 
     def guess(self, step, observations):
             """
@@ -36,21 +35,17 @@ class PlayerControllerHMM(PlayerControllerHMMAbstract):
             for i in range(len(self.fishes)):
                 self.fishes[i][1].append(observations[i])
 
-            if step < 110:      # 110 = 180 timesteps - 70 guesses
-                return None
-            else:
+            if step >= 110:
                 fish_id, obs = self.fishes.pop()
-                fish_type = 0
-                max = 0
-                for model, j in zip(list(self.models.values()), range(N_SPECIES)):
+                guesses = []
+                for i in self.models:
+                    model = self.models[i]
                     model.T = len(obs)
                     model.O = obs
-                    m = model.guess(obs)
-                    if m > max:
-                        max = m
-                        fish_type = j
-                self.obs = obs
-                return fish_id, fish_type
+                    guesses.append(model.guess(obs))
+                
+                guess = guesses.index(max(guesses))
+                return fish_id, guess
 
     def reveal(self, correct, fish_id, true_type):
         """
@@ -65,4 +60,5 @@ class PlayerControllerHMM(PlayerControllerHMMAbstract):
 
         if not correct:
             self.models[true_type].baum_welch(50)
+        
 
