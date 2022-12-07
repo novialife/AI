@@ -136,6 +136,9 @@ class PlayerControllerRL(PlayerController, FishesModelling):
         self.episode_max = self.settings.episode_max
 
         q = self.q_learning()
+        #initiate q-table
+
+
 
         # compute policy
         policy = self.get_policy(q)
@@ -194,7 +197,7 @@ class PlayerControllerRL(PlayerController, FishesModelling):
 
                 # ADD YOUR CODE SNIPPET BETWEEN EX 2.1 and 2.2
                 # Chose an action from all possible actions
-                action = None
+                action = np.nanargmax(Q[s_current, :])
                 # ADD YOUR CODE SNIPPET BETWEEN EX 2.1 and 2.2
 
                 # ADD YOUR CODE SNIPPET BETWEEN EX 5
