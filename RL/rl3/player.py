@@ -101,7 +101,12 @@ def epsilon_greedy(Q,
         # Implemenmt the epsilon-greedy algorithm for a constant epsilon value
         # Use epsilon and all input arguments of epsilon_greedy you see fit
         # It is recommended you use the np.random module
-        action = None
+
+        if np.random.random() < epsilon:
+            action = np.random.choice(all_actions)
+        else:
+            action = np.argmax(Q[state, :])
+
         # ADD YOUR CODE SNIPPET BETWEEN EX 3.1
 
     elif eps_type == 'linear':
@@ -110,7 +115,12 @@ def epsilon_greedy(Q,
         # Use epsilon and all input arguments of epsilon_greedy you see fit
         # use the ScheduleLinear class
         # It is recommended you use the np.random module
-        action = None
+        
+        epsilon = ScheduleLinear(epsilon_initial, epsilon_final, anneal_timesteps)
+        if np.random.random() < epsilon.value(current_total_steps):
+            action = np.random.choice(all_actions)
+        else:
+            action = np.argmax(Q[state, :])
         # ADD YOUR CODE SNIPPET BETWEENEX  3.2
 
     else:
@@ -157,14 +167,14 @@ class PlayerControllerRL(PlayerController, FishesModelling):
         self.allowed_movements()
         # ADD YOUR CODE SNIPPET BETWEEN EX. 2.1
         # Initialize a numpy array with ns state rows and na state columns with float values from 0.0 to 1.0.
-        Q = None
+        Q = np.random.random((ns, na))
         # ADD YOUR CODE SNIPPET BETWEEN EX. 2.1
 
         for s in range(ns):
             list_pos = self.allowed_moves[s]
             for i in range(4):
                 if i not in list_pos:
-                    Q[s, i] = np.nan
+                    Q[s, i] += 1
 
         Q_old = Q.copy()
 
@@ -194,7 +204,7 @@ class PlayerControllerRL(PlayerController, FishesModelling):
 
                 # ADD YOUR CODE SNIPPET BETWEEN EX 2.1 and 2.2
                 # Chose an action from all possible actions
-                action = None
+                action = epsilon_greedy(Q, s_current, list_pos, current_total_steps, self.epsilon_initial, self.epsilon_final, self.annealing_timesteps, eps_type="linear")
                 # ADD YOUR CODE SNIPPET BETWEEN EX 2.1 and 2.2
 
                 # ADD YOUR CODE SNIPPET BETWEEN EX 5
@@ -216,6 +226,7 @@ class PlayerControllerRL(PlayerController, FishesModelling):
 
                 # ADD YOUR CODE SNIPPET BETWEEN EX. 2.2
                 # Implement the Bellman Update equation to update Q
+                Q[s_current, action] += lr * (R + discount * np.nanmax(Q[s_next]) - Q[s_current][action])
                 # ADD YOUR CODE SNIPPET BETWEEN EX. 2.2
 
                 s_current = s_next
@@ -282,6 +293,7 @@ class PlayerControllerRandom(PlayerController):
         end_episode = False
         # ADD YOUR CODE SNIPPET BETWEEN EX. 1.2
         # Initialize a numpy array with ns state rows and na state columns with zeros
+        states = np.zeros((ns, na))
         # ADD YOUR CODE SNIPPET BETWEEN EX. 1.2
 
         while episode <= self.episode_max:
@@ -294,7 +306,8 @@ class PlayerControllerRandom(PlayerController):
 
                 # ADD YOUR CODE SNIPPET BETWEEN EX. 1.2
                 # Chose an action from all possible actions and add to the counter of actions per state
-                action = None
+                action = np.random.choice(possible_actions)
+                states[s_current, action] += 1
                 # ADD YOUR CODE SNIPPET BETWEEN EX. 1.2
 
                 action_str = self.action_list[action]
@@ -317,7 +330,7 @@ class PlayerControllerRandom(PlayerController):
             episode += 1
             end_episode = False
 
-        return n
+        return states
 
     def get_policy(self, Q):
         nan_max_actions_proxy = [None for _ in range(len(Q))]
@@ -349,5 +362,5 @@ class ScheduleLinear(object):
     def value(self, t):
         # ADD YOUR CODE SNIPPET BETWEEN EX 3.2
         # Return the annealed linear value
-        return self.initial_p
+        return self.initial_p + (self.final_p - self.initial_p) * t / self.schedule_timesteps
         # ADD YOUR CODE SNIPPET BETWEEN EX 3.2
