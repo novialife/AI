@@ -160,7 +160,7 @@ class PlayerControllerRL(PlayerController, FishesModelling):
         self.allowed_movements()
         # ADD YOUR CODE SNIPPET BETWEEN EX. 2.1
         # Initialize a numpy array with ns state rows and na state columns with float values from 0.0 to 1.0.
-        Q = np.random.dirichlet(np.ones(na), size=ns)
+        Q = np.random.random((ns, na))
         # ADD YOUR CODE SNIPPET BETWEEN EX. 2.1
 
         for s in range(ns):
@@ -181,11 +181,12 @@ class PlayerControllerRL(PlayerController, FishesModelling):
         R_total = 0
         current_total_steps = 0
         steps = 0
+        
 
         # ADD YOUR CODE SNIPPET BETWEEN EX. 2.3
         # Change the while loop to incorporate a threshold limit, to stop training when the mean difference
         # in the Q table is lower than the threshold
-        while episode <= self.episode_max:
+        while episode <= self.episode_max and diff > self.threshold:
             # ADD YOUR CODE SNIPPET BETWEENEX. 2.3
 
             s_current = init_pos
@@ -198,6 +199,7 @@ class PlayerControllerRL(PlayerController, FishesModelling):
                 # ADD YOUR CODE SNIPPET BETWEEN EX 2.1 and 2.2
                 # Chose an action from all possible actions
                 action = np.nanargmax(Q[s_current, :])
+
                 # ADD YOUR CODE SNIPPET BETWEEN EX 2.1 and 2.2
 
                 # ADD YOUR CODE SNIPPET BETWEEN EX 5
@@ -217,8 +219,12 @@ class PlayerControllerRL(PlayerController, FishesModelling):
                 end_episode = msg["end_episode"]
                 s_next = self.ind2state[s_next_tuple]
 
-                # ADD YOUR CODE SNIPPET BETWEEN EX. 2.2
+                # ADD YOUR CODE SNIPPET BETWEEN EX. 2.2  
                 # Implement the Bellman Update equation to update Q
+
+                Q[s_current, action] += lr * (R + discount * np.nanmax(Q[s_next]) - Q[s_current][action])
+
+              
                 # ADD YOUR CODE SNIPPET BETWEEN EX. 2.2
 
                 s_current = s_next
@@ -227,9 +233,12 @@ class PlayerControllerRL(PlayerController, FishesModelling):
 
             # ADD YOUR CODE SNIPPET BETWEEN EX. 2.3
             # Compute the absolute value of the mean between the Q and Q-old
-            diff = 100
+            diff = np.mean(np.abs(Q - Q_old))
+            #print(diff)
             # ADD YOUR CODE SNIPPET BETWEEN EX. 2.3
             Q_old[:] = Q
+
+            
             print(
                 "Episode: {}, Steps {}, Diff: {:6e}, Total Reward: {}, Total Steps {}"
                 .format(episode, steps, diff, R_total, current_total_steps))
