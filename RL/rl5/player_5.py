@@ -93,7 +93,7 @@ def epsilon_greedy(Q,
                    epsilon_initial=1,
                    epsilon_final=0.2,
                    anneal_timesteps=10000,
-                   eps_type="constant"):
+                   eps_type="linear"):
 
     if eps_type == 'constant':
         epsilon = epsilon_final
@@ -119,7 +119,7 @@ def epsilon_greedy(Q,
         if np.random.random() < epsilon.value(current_total_steps):
             action = np.random.choice(all_actions)
         else:
-            action = np.argmax(Q[state, :])
+            action = np.nanargmax(Q[state, :])
         # ADD YOUR CODE SNIPPET BETWEENEX  3.2
 
     else:
@@ -173,7 +173,7 @@ class PlayerControllerRL(PlayerController, FishesModelling):
             list_pos = self.allowed_moves[s]
             for i in range(4):
                 if i not in list_pos:
-                    Q[s, i] += 1
+                    Q[s, i] = np.nan
 
         Q_old = Q.copy()
 
@@ -191,7 +191,7 @@ class PlayerControllerRL(PlayerController, FishesModelling):
         # ADD YOUR CODE SNIPPET BETWEEN EX. 2.3
         # Change the while loop to incorporate a threshold limit, to stop training when the mean difference
         # in the Q table is lower than the threshold
-        while episode <= self.episode_max:
+        while episode <= self.episode_max and diff > self.threshold:
             # ADD YOUR CODE SNIPPET BETWEENEX. 2.3
 
             s_current = init_pos
@@ -234,7 +234,7 @@ class PlayerControllerRL(PlayerController, FishesModelling):
 
             # ADD YOUR CODE SNIPPET BETWEEN EX. 2.3
             # Compute the absolute value of the mean between the Q and Q-old
-            diff = 100
+            diff = np.absolute(np.nanmean(Q - Q_old))
             # ADD YOUR CODE SNIPPET BETWEEN EX. 2.3
             Q_old[:] = Q
             print(
