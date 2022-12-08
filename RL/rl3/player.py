@@ -105,7 +105,7 @@ def epsilon_greedy(Q,
         if np.random.random() < epsilon:
             action = np.random.choice(all_actions)
         else:
-            action = np.argmax(Q[state, :])
+            action = np.nanargmax(Q[state, :])
 
         # ADD YOUR CODE SNIPPET BETWEEN EX 3.1
 
@@ -116,7 +116,7 @@ def epsilon_greedy(Q,
         # use the ScheduleLinear class
         # It is recommended you use the np.random module
         
-        epsilon = ScheduleLinear(epsilon_initial, epsilon_final, anneal_timesteps)
+        epsilon = ScheduleLinear(anneal_timesteps, epsilon_final, epsilon_initial)
         if np.random.random() < epsilon.value(current_total_steps):
             action = np.random.choice(all_actions)
         else:
