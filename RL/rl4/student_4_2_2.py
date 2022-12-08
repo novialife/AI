@@ -12,7 +12,7 @@ gamma = 0.1
 epsilon_initial = 1
 
 # Epsilon final
-epsilon_final = 0.5
+epsilon_final = 1
 
 # Annealing timesteps
 annealing_timesteps = 1000
