@@ -143,7 +143,7 @@ class HMM:
             gamma, gamma_ij = self.gamma(self.O, alpha, beta)
             self.reestimate(gamma, gamma_ij, self.O)
 
-            if self.prob_log(p) < log_p:
+            if np.abs(self.prob_log(p) - log_p) < 10e-6:
                 log_p = self.prob_log(p)
                 print(f"Converged at iteration {_} with log probability {log_p}")
                 return True
@@ -283,15 +283,6 @@ def q8():
     model.M = len(set(model.O))
     model.N = len(model.A)
     model.T = len(model.O)
-
-    print(np.shape(model.A))
-    print(np.shape(model.B))
-    print(np.shape(model.pi))
-    print(np.shape(model.O))
-
-    print(model.M)
-    print(model.N)
-    print(model.T)
 
     if model.baum_welch(10000):
         model.printer()
