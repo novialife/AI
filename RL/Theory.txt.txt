@@ -14,3 +14,14 @@ Set the learning rate (alpha) to a high value, such as 0.9, and set the discount
 However, if the reward structure of an MDP is simple enough, the optimal policy degenerates in a simple heuristic. Given the 4_2_3.yml reward structure and initial position of
 jelly sh/king sh/diver, what is the value of the long term return of the optimal policy?
 
+
+Reduce alpha over time:
+
+To improve the stability of the algorithm: 
+As the Q-function is updated iteratively using the Bellman equation, the value of each state can change significantly from one iteration to the next. This can lead to instability in the estimates, particularly if the learning rate is set too high. By decreasing the value of alpha over time, we can reduce the magnitude of the updates made to the Q-function at each iteration, which can help to stabilize the estimates and improve the overall performance of the algorithm.
+
+To allow for more fine-tuned adjustments: 
+As the Q-function is updated over time, it may be beneficial to make smaller adjustments to the estimates as the algorithm converges on the optimal policy. By decreasing the value of alpha over time, we can allow the algorithm to make more fine-tuned adjustments to the Q-function, which may be more accurate and lead to better overall performance.
+
+To prevent overfitting: 
+If the learning rate is set too high, the Q-function may become overfitted to the training data and may not generalize well to new situations. By decreasing the value of alpha over time, we can reduce the risk of overfitting and improve the generalization capabilities of the algorithm.
