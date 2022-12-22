@@ -1,0 +1,16 @@
+Not improving/learning:
+Set the learning rate (alpha) to a very low value, such as 0.01. This will cause the algorithm to make only small updates to the Q-function at each iteration, resulting in slow learning or no improvement.
+
+High variance but fast learning:
+Set the learning rate (alpha) to a high value, such as 0.9. This will cause the algorithm to make large updates to the Q-function at each iteration, resulting in fast learning but also high variance in the estimates.
+
+Low variance and high long-term return:
+Set the learning rate (alpha) to a moderate value, such as 0.5. This will cause the algorithm to make moderate updates to the Q-function at each iteration, resulting in a balance between fast learning and low variance in the estimates.
+
+High variance and high long-term return:
+Set the learning rate (alpha) to a high value, such as 0.9, and set the discount factor (gamma) to a low value, such as 0.1. This will cause the algorithm to prioritize short-term rewards over long-term returns, resulting in high variance in the estimates but also potentially high long-term returns.
+
+
+However, if the reward structure of an MDP is simple enough, the optimal policy degenerates in a simple heuristic. Given the 4_2_3.yml reward structure and initial position of
+jelly sh/king sh/diver, what is the value of the long term return of the optimal policy?
+

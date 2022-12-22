@@ -191,13 +191,13 @@ class PlayerControllerRL(PlayerController, FishesModelling):
         # ADD YOUR CODE SNIPPET BETWEEN EX. 2.3
         # Change the while loop to incorporate a threshold limit, to stop training when the mean difference
         # in the Q table is lower than the threshold
-        while episode <= self.episode_max:
+        while episode <= self.episode_max and diff > self.threshold:
             # ADD YOUR CODE SNIPPET BETWEENEX. 2.3
 
             s_current = init_pos
             R_total = 0
             steps = 0
-            while not end_episode:
+            while not end_episode and diff > self.threshold:
                 # selection of action
                 list_pos = self.allowed_moves[s_current]
 
@@ -234,7 +234,7 @@ class PlayerControllerRL(PlayerController, FishesModelling):
 
             # ADD YOUR CODE SNIPPET BETWEEN EX. 2.3
             # Compute the absolute value of the mean between the Q and Q-old
-            diff = 100
+            diff = np.absolute(np.nanmean(Q - Q_old))
             # ADD YOUR CODE SNIPPET BETWEEN EX. 2.3
             Q_old[:] = Q
             print(
