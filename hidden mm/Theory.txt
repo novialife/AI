@@ -1,0 +1,91 @@
+Q1:
+π = [0.5  0.5]
+A = [0.5  0.5
+     0.5  0.5]
+B = [0.9  0.1
+     0.5  0.5]
+
+Q2:
+The result of multiplying the transition matrix with the current estimate
+of states is a new row vector that represents the updated estimate of the
+state distribution. This new vector will have the same number of entries
+as the original vector, and each entry will represent the updated 
+probability of being in a given state (in this case, the probability
+of using coin 1 or coin 2 at the current time step). The entries in 
+the new vector will be computed by multiplying the corresponding 
+entries in the transition matrix and the original vector, and summing
+the resulting values across the columns of the transition matrix.
+
+Q3:
+The result of this operation is a new row vector that represents the 
+updated estimate of the probabilities of observing each outcome. 
+This vector will have the same number of entries as the original vector
+and each entry will represent the updated probability of observing a 
+given outcome (head or tail) at the current time step
+
+Q4: 
+When we condition on the state Xt=xi, this means that we are considering 
+a specific value of the state variable at time t. Because the value of the 
+state variable is fixed at this specific value, we can substitute O1:t=o1:t
+with Ot=ot without changing the meaning of the expression. This is because
+the value of the state variable at time t is the same in both expressions, 
+so the overall meaning of the expression remains the same.
+
+Q5:
+if the HMM has N states and the observed data consists of T time steps, 
+then the matrix δ would have dimensions NxT, and would therefore have NxT 
+values. Similarly, the matrix δi d x would also have dimensions NxT.cd -
+
+
+
+Q6: 
+The di-gamma function, also known as the digamma function,
+is a mathematical function that is often used in statistics
+and probability theory. In this context, the sum of the 
+alphas in the di-gamma function is used as a normalizing 
+constant, which ensures that the output of the function is
+a valid probability distribution. By dividing the output of
+the di-gamma function by the sum of the alphas, we can ensure
+that the probabilities sum to 1, which is a necessary 
+property of any valid probability distribution. This
+normalization is important because it allows us to make
+probabilistic predictions based on the output of the di-gamma function.
+
+
+Q7: Converged at iteration 2057 with log probability -1337.0100266233535 for T = 1000
+
+Does not converge for T = 10000 within atleast 5000 iterations
+
+We define convergence as the point at which the log probability of the data stops increasing. Meaning that the probability decreases.
+
+Q8: 
+
+Converged at iteration 4056 with log probability -1339.2374217836018
+3 3 0.848345 0.0 0.151655 0.2635 0.604191 0.132309 0.115017 0.240505 0.644477 
+3 4 0.027877 0.346237 0.302405 0.32348 0.117133 0.0 0.314477 0.56839 0.710023 0.222496 0.067482 0.0 %   
+
+Converged at iteration 1486 with log probability -13410.832212633088 
+3 3 0.748641 0.13334 0.11802 0.259809 0.586252 0.153939 0.04743 0.257679 0.694891 
+3 4 0.098763 0.419534 0.311288 0.170416 0.031199 0.169279 0.185698 0.613825 0.709603 0.186159 0.103506 0.000732 %  
+
+Converged at iteration 2106 with log probability -13449.800513962831 probably not good.... using tolerance which is most likely wrong.
+3 3 0.879441 0.046409 0.074149 0.001752 0.48691 0.511338 0.458194 0.108846 0.43296 
+3 4 0.069343 0.315661 0.259266 0.35573 0.40676 0.357577 0.235663 0.0 0.927105 0.04678 0.0 0.026115 %     
+
+Q10: Baum-Welch uniform 
+Initializing the Baum-Welch algorithm with a uniform distribution can
+affect the learning in a number of ways. One way that it can affect 
+the learning is by providing a starting point for the algorithm to 
+begin its iterative process of estimating the parameters of the hidden
+Markov model. If the initial distribution is not uniform, the algorithm
+may converge to a different set of parameters than if it were 
+initialized with a uniform distribution. This can affect the performance
+of the model in terms of its ability to accurately model the data.
+
+Q10: diagonal A matrix and π= [0, 0, 1]
+the diagonal A matrix and π = [0, 0, 1] may encode certain assumptions 
+or constraints about the structure of the model, which can affect the 
+learning process. For example, the diagonal A matrix may indicate that
+the model is assuming that the transition probabilities between states
+are independent of each other, while the value of π = [0, 0, 1] may
+indicate that the model is assuming that the initial state is the third state in the model.

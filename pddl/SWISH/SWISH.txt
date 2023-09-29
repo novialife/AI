@@ -1,0 +1,78 @@
+%%  waiters(-Solution)
+%   @param  Solution is a list of waiters that satisfy all constraints.
+
+/* 4 waiters logical puzzle: 
+* 
+* The constants:
+* Waiters: w1, w2, w3, w4
+* Heights: 160, 170, 180, 190
+* Expertise: food, beverage, tables, cleaning
+* Workload: full, part
+* Floor: basement, ground, first
+* 
+* We know the following facts:
+*  F1- w1 experiences in food.
+*  F2- w3 is 160 tall.
+*  F3- w2 works full-time.
+*  F4- One of the waiters works in the first floor but not w2.
+*  F5- The cleaning expert works in the basement.
+*  F6- Two of the waiters work full-time in the ground floor.
+*  F7- The beverage expert is the tallest.
+*  F8- Two of the waiters work part-time but neither of them are w3.
+*  F9- The waiter that is 170 tall works on the first floor.
+*  F10- At least one waiter works in the basement and at least one in the first floor.
+*/
+
+% Render the houses term as a nice table.
+:- use_rendering(table,[header(p('Waiter', 'Height', 'Expertise', 'Workload', 'Floor'))]).
+
+% The facts:
+fact1(Ls) :-
+    member(p(w1, _, food, _, _), Ls).
+fact2(Ls) :-
+    member(p(w3, 160, _, _, _), Ls).
+fact3(Ls) :-
+    member(p(w2, _, _, full, _), Ls).
+fact4(Ls) :-
+    member(p(_, _, _, _, first), Ls), not(member(p(w2, _, _, _, first), Ls)).
+fact5(Ls) :-
+    member(p(_, _, cleaning, _, basement), Ls).
+fact6(Ls) :-
+    member(p(Waiter1, _, _, full, ground), Ls), member(p(Waiter2, _, _, full, ground), Ls), Waiter1 \= Waiter2.
+fact7(Ls) :-
+    member(p(_, 190, beverage, _, _), Ls).
+fact8(Ls) :-
+    member(p(Waiter1, _, _, part, _), Ls), member(p(Waiter2, _, _, part, _), Ls), not(member(p(w3, _, _, part, _), Ls)), Waiter1 \= Waiter2.
+fact9(Ls) :-
+    member(p(_, 170, _, _, first), Ls).
+fact10(Ls) :-
+    member(p(Waiter1, _, _, _, basement), Ls), member(p(Waiter2, _, _, _, first), Ls), Waiter1 \= Waiter2.
+
+% Problem:
+waiters(Ls) :-
+    % There are 4 waiters in our list Ls
+    length(Ls, 4),
+    % One of them is w1, one is w2, one is w3 and one is w4
+    member(p(w1,_,_,_,_), Ls), member(p(w2,_,_,_,_), Ls), member(p(w3,_,_,_,_), Ls), member(p(w4,_,_,_,_), Ls),
+    % One of them is 160, one is 170, one is 180 and one is 190
+    member(p(_,160,_,_,_), Ls), member(p(_,170,_,_,_), Ls), member(p(_,180,_, _,_), Ls), member(p(_,190,_, _,_), Ls), 
+    % One of them excels in food, one in beverage, one in tables and one in cleaning
+    member(p(_,_,food,_,_), Ls), member(p(_,_,beverage, _,_), Ls), member(p(_,_,tables, _,_), Ls), member(p(_,_,cleaning, _,_), Ls),
+    % Some work full-time and some work part-time
+    member(p(_,_,_,full,_), Ls), member(p(_,_,_,part,_), Ls),
+    % Some work in the basement, some in the ground floor and some in the first floor
+    member(p(_,_,_, _,basement), Ls), member(p(_,_,_, _,ground), Ls), member(p(_,_,_, _,first), Ls),
+    fact1(Ls),
+    fact2(Ls),
+    fact3(Ls),
+    fact4(Ls),
+    fact5(Ls),
+    fact6(Ls),
+    fact7(Ls),
+    fact8(Ls),
+    fact9(Ls),
+    fact10(Ls),
+    !.
+ 
+%To see the results, run ?- waiters(Ls).
+
